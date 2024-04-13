@@ -78,6 +78,6 @@ async def generate_quiz_endpoint(text: str):
     quiz = generate_quiz(text)
     return {"quiz": quiz}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
