@@ -1,7 +1,8 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, Body, UploadFile, File
 import fitz  # PyMuPDF
 from ai import get_ai_response, convert_pdf_to_text
 from youtube_transcript_api import YouTubeTranscriptApi
+from pydantic import BaseModel
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -84,27 +85,32 @@ async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
     summary = create_summary(text)
     return {"summary": summary}
 
+class YoutubeLink(BaseModel):
+    link: str
 
-@app.get("/generate/summary/youtube")
-async def generate_summary_youtube(youtube_link: str):
+
+@app.post("/generate/summary/youtube")
+async def generate_summary_youtube(youtube_link: YoutubeLink):
     """
     Accepts a YouTube link and returns the summary as a text response.
     """
     # Extract text from YouTube video
 
-    text = extract_transcript_from_youtube(youtube_link)
+    text = extract_transcript_from_youtube(youtube_link.link)
 
     summary = create_summary(text)
     # Generate summary
     return {"summary": summary}
 
+class Text(BaseModel):
+    text: str
 
-@app.get("/generate/quiz/")
-async def generate_quiz_endpoint(text: str):
+@app.post("/generate/quiz/")
+async def generate_quiz_endpoint(text: Text):
     """
     Accepts a PDF file and returns a quiz as a text response.
     """
-    quiz = generate_quiz(text)
+    quiz = generate_quiz(text.text)
     return {"quiz": quiz}
 
 
