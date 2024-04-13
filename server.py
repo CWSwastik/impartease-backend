@@ -3,23 +3,45 @@ import fitz  # PyMuPDF
 from ai import get_ai_response, convert_pdf_to_text
 from youtube_transcript_api import YouTubeTranscriptApi
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def create_summary(text):
     """
     Creates a summary of the input text.
     """
-    return get_ai_response("Summarize this lecture into 1 page notes in md format, use subheadings and bulleted points and emojis: \n\n" + text)
+    return get_ai_response(
+        "Summarize this lecture into 1 page notes in md format, use subheadings and bulleted points and emojis: \n\n"
+        + text
+    )
+
 
 def generate_quiz(text):
     """
     Generates a quiz from the input text.
     """
-    PROMPT = "Generate a quiz from the following text: \n\n" + text + "\n\nThe format of the quiz should be multiple choice questions. Return 5 questions as a python list in this format, example: [{'question': 'What is the capital of France?', 'options': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}, ...]"
+    PROMPT = (
+        "Generate a quiz from the following text: \n\n"
+        + text
+        + "\n\nThe format of the quiz should be multiple choice questions. Return 5 questions as a python list in this format, example: [{'question': 'What is the capital of France?', 'options': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}, ...]"
+    )
     res = get_ai_response(PROMPT)
     # Parse the response
     questions = eval(res)
     return questions
+
 
 def extract_text_from_pdf(pdf_file):
     """
@@ -36,6 +58,7 @@ def extract_text_from_pdf(pdf_file):
         text = convert_pdf_to_text(pdf_file.read())
     return text
 
+
 def extract_transcript_from_youtube(youtube_link):
     """
     Extracts the transcript from a YouTube video.
@@ -47,7 +70,8 @@ def extract_transcript_from_youtube(youtube_link):
     for line in transcript:
         text += line["text"] + " "
     return text
-    
+
+
 @app.post("/generate_summary/pdf")
 async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
     """
@@ -56,6 +80,7 @@ async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
     text = extract_text_from_pdf(pdf_file.file)
     summary = create_summary(text)
     return {"summary": summary}
+
 
 @app.get("/generate_summary/youtube")
 async def generate_summary_youtube(youtube_link: str):
@@ -70,6 +95,7 @@ async def generate_summary_youtube(youtube_link: str):
     # Generate summary
     return {"summary": summary}
 
+
 @app.get("/generate_quiz/")
 async def generate_quiz_endpoint(text: str):
     """
@@ -77,6 +103,7 @@ async def generate_quiz_endpoint(text: str):
     """
     quiz = generate_quiz(text)
     return {"quiz": quiz}
+
 
 # if __name__ == "__main__":
 #     import uvicorn
