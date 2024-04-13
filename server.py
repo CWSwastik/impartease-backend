@@ -81,8 +81,11 @@ async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
     """
     Accepts a PDF file and returns the summary as a text response.
     """
-    text = extract_text_from_pdf(pdf_file.file)
-    summary = create_summary(text)
+    try:
+        text = extract_text_from_pdf(pdf_file.file)
+        summary = create_summary(text)
+    except Exception as e:
+        return {"error": str(e)}
     return {"summary": summary}
 
 class YoutubeLink(BaseModel):
@@ -95,10 +98,14 @@ async def generate_summary_youtube(youtube_link: YoutubeLink):
     Accepts a YouTube link and returns the summary as a text response.
     """
     # Extract text from YouTube video
+    try:
 
-    text = extract_transcript_from_youtube(youtube_link.link)
+        text = extract_transcript_from_youtube(youtube_link.link)
 
-    summary = create_summary(text)
+        summary = create_summary(text)
+    except Exception as e:
+        return {"error": str(e)}
+
     # Generate summary
     return {"summary": summary}
 
