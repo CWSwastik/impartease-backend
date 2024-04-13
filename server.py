@@ -72,7 +72,7 @@ def extract_transcript_from_youtube(youtube_link):
     return text
 
 
-@app.post("/generate_summary/pdf")
+@app.post("/generate/summary/pdf")
 async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
     """
     Accepts a PDF file and returns the summary as a text response.
@@ -82,7 +82,7 @@ async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
     return {"summary": summary}
 
 
-@app.get("/generate_summary/youtube")
+@app.get("/generate/summary/youtube")
 async def generate_summary_youtube(youtube_link: str):
     """
     Accepts a YouTube link and returns the summary as a text response.
@@ -96,7 +96,7 @@ async def generate_summary_youtube(youtube_link: str):
     return {"summary": summary}
 
 
-@app.get("/generate_quiz/")
+@app.get("/generate/quiz/")
 async def generate_quiz_endpoint(text: str):
     """
     Accepts a PDF file and returns a quiz as a text response.
