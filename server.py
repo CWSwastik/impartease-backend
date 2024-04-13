@@ -36,7 +36,7 @@ def generate_quiz(text):
     PROMPT = (
         "Generate a quiz from the following text: \n\n"
         + text
-        + "\n\nThe format of the quiz should be multiple choice questions. Return 5 questions as a python list in this format, example: [{'question': 'What is the capital of France?', 'options': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}, ...]"
+        + "\n\nThe format of the quiz should be multiple choice questions. Return 5 questions as a python list EXACTLY in this format, example: [{'question': 'What is the capital of France?', 'options': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}, ...]"
     )
     res = get_ai_response(PROMPT)
     # Parse the response
