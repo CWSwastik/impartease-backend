@@ -5,7 +5,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(title="ImpartEase API", description="API for ImpartEase", version="0.1")
 
 origins = ["*"]
 
