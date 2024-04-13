@@ -39,7 +39,10 @@ def generate_quiz(text):
     )
     res = get_ai_response(PROMPT)
     # Parse the response
-    questions = eval(res)
+    try:
+        questions = eval(res)
+    except SyntaxError:
+        return generate_quiz(text)
     return questions
 
 
