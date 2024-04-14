@@ -3,6 +3,12 @@ import fitz  # PyMuPDF
 from ai import get_ai_response, convert_pdf_to_text
 from youtube_transcript_api import YouTubeTranscriptApi
 from pydantic import BaseModel
+import requests
+from dotenv import load_dotenv
+import os, io
+
+load_dotenv()
+IMPARTUS_TOKEN = os.getenv("IMPARTUS_TOKEN")
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -62,6 +68,19 @@ def extract_text_from_pdf(pdf_file):
         text = convert_pdf_to_text(pdf_file.read())
     return text
 
+def fetch_impartus_pdf(impartus_video_link):
+    """
+    Fetches the PDF from the Impartus video link.
+    """
+    video_id = impartus_video_link.split("/")[-1]
+    
+    url = f"https://a.impartus.com/api/videos/{video_id}/auto-generated-pdf"
+    response = requests.get(url, headers={"Authorization": f"Bearer {IMPARTUS_TOKEN}"})
+
+
+    io_bytes = io.BytesIO(response.content)
+    return io_bytes
+    
 
 def extract_transcript_from_youtube(youtube_link):
     """
@@ -88,12 +107,12 @@ async def generate_summary_pdf(pdf_file: UploadFile = File(...)):
         return {"error": str(e)}
     return {"summary": summary}
 
-class YoutubeLink(BaseModel):
+class Link(BaseModel):
     link: str
 
 
 @app.post("/generate/summary/youtube")
-async def generate_summary_youtube(youtube_link: YoutubeLink):
+async def generate_summary_youtube(youtube_link: Link):
     """
     Accepts a YouTube link and returns the summary as a text response.
     """
@@ -107,6 +126,19 @@ async def generate_summary_youtube(youtube_link: YoutubeLink):
         return {"error": str(e)}
 
     # Generate summary
+    return {"summary": summary}
+
+@app.post("/generate/summary/impartus")
+async def generate_summary_impartus(impartus_video_link: Link):
+    """
+    Accepts a text file and returns the summary as a text response.
+    """
+    try:
+        imp_pdf = fetch_impartus_pdf(impartus_video_link.link)
+        text = extract_text_from_pdf(imp_pdf)
+        summary = create_summary(text)
+    except Exception as e:
+        return {"error": str(e)}
     return {"summary": summary}
 
 class Text(BaseModel):
