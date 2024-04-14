@@ -35,14 +35,14 @@ def create_summary(text):
     )
 
 
-def generate_quiz(text):
+def generate_quiz(text, difficulty="medium", num_questions=5):
     """
     Generates a quiz from the input text.
     """
     PROMPT = (
         "Generate a quiz from the following text: \n\n"
         + text
-        + "\n\nThe format of the quiz should be multiple choice questions. Return 5 questions as a python list EXACTLY in this format, example: [{'question': 'What is the capital of France?', 'options': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}, ...]"
+        + f"\n\nThe format of the quiz should be multiple choice questions. Return {num_questions} {difficulty} level questions as a python list EXACTLY in this format, example:" + "[{'question': 'What is the capital of France?', 'options': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}, ...]"
     )
     res = get_ai_response(PROMPT)
     # Parse the response
@@ -143,13 +143,15 @@ async def generate_summary_impartus(impartus_video_link: Link):
 
 class Text(BaseModel):
     text: str
+    difficulty: str = "medium"
+    num_questions: int = 5
 
 @app.post("/generate/quiz/")
 async def generate_quiz_endpoint(text: Text):
     """
     Accepts a PDF file and returns a quiz as a text response.
     """
-    quiz = generate_quiz(text.text)
+    quiz = generate_quiz(text.text, text.difficulty, text.num_questions)
     return {"quiz": quiz}
 
 
